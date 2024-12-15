@@ -19,6 +19,8 @@ CREATE TABLE Customer (
     customer_city VARCHAR(50)
 );
 
+
+
 -- Create Account table
 CREATE TABLE Account (
     account_number VARCHAR(10) PRIMARY KEY,
