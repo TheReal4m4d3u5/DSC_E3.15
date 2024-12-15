@@ -1,136 +1,129 @@
-DROP TABLE IF EXISTS teaches CASCADE;
-DROP TABLE IF EXISTS advisor CASCADE;
-DROP TABLE IF EXISTS takes CASCADE;
-DROP TABLE IF EXISTS section CASCADE;
-DROP TABLE IF EXISTS course CASCADE;
-DROP TABLE IF EXISTS instructor CASCADE;
-DROP TABLE IF EXISTS student CASCADE;
-DROP TABLE IF EXISTS department CASCADE;
+DROP TABLE IF EXISTS Borrower CASCADE;
+DROP TABLE IF EXISTS Loan CASCADE;
+DROP TABLE IF EXISTS Depositor CASCADE;
+DROP TABLE IF EXISTS Account CASCADE;
+DROP TABLE IF EXISTS Customer CASCADE;
+DROP TABLE IF EXISTS Branch CASCADE;
 
--- Create Department table
-CREATE TABLE IF NOT EXISTS Department (
-    dept_name VARCHAR(50) PRIMARY KEY
+-- Create Branch table
+CREATE TABLE Branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50),
+    assets DECIMAL(12, 2)
 );
 
--- Create Student table
-CREATE TABLE IF NOT EXISTS Student (
-    ID VARCHAR(10) PRIMARY KEY,
-    name VARCHAR(50),
-    dept_name VARCHAR(50),
-    tot_cred INT,
-    FOREIGN KEY (dept_name) REFERENCES Department(dept_name)
+-- Create Customer table
+CREATE TABLE Customer (
+    customer_name VARCHAR(50) PRIMARY KEY,
+    customer_street VARCHAR(100),
+    customer_city VARCHAR(50)
 );
 
--- Create Course table
-CREATE TABLE IF NOT EXISTS Course (
-    course_id VARCHAR(10) PRIMARY KEY,
-    title VARCHAR(100),
-    dept_name VARCHAR(50),
-    credits INT,
-    FOREIGN KEY (dept_name) REFERENCES Department(dept_name)
+-- Create Account table
+CREATE TABLE Account (
+    account_number VARCHAR(10) PRIMARY KEY,
+    branch_name VARCHAR(50),
+    balance DECIMAL(10, 2),
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
 );
 
--- Create Section table
-CREATE TABLE IF NOT EXISTS Section (
-    course_id VARCHAR(10),
-    sec_id INT,
-    semester VARCHAR(10),
-    year INT,
-    building VARCHAR(50),
-    room_number VARCHAR(10),
-    time_slot_id VARCHAR(10),
-    PRIMARY KEY (course_id, sec_id, semester, year),
-    FOREIGN KEY (course_id) REFERENCES Course(course_id) ON DELETE CASCADE
+-- Create Depositor table
+CREATE TABLE Depositor (
+    customer_name VARCHAR(50),
+    account_number VARCHAR(10),
+    PRIMARY KEY (customer_name, account_number),
+    FOREIGN KEY (customer_name) REFERENCES Customer(customer_name),
+    FOREIGN KEY (account_number) REFERENCES Account(account_number)
 );
 
--- Create Takes table
-CREATE TABLE IF NOT EXISTS Takes (
-    ID VARCHAR(10),
-    course_id VARCHAR(10),
-    sec_id INT,
-    semester VARCHAR(10),
-    year INT,
-    grade CHAR(1),
-    PRIMARY KEY (ID, course_id, sec_id, semester, year),
-    FOREIGN KEY (ID) REFERENCES Student(ID),
-    FOREIGN KEY (course_id) REFERENCES Course(course_id) ON DELETE CASCADE
+-- Create Loan table
+CREATE TABLE Loan (
+    loan_number VARCHAR(10) PRIMARY KEY,
+    branch_name VARCHAR(50),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
 );
 
--- Create Instructor table
-CREATE TABLE IF NOT EXISTS Instructor (
-    ID INT PRIMARY KEY,
-    name VARCHAR(50),
-    dept_name VARCHAR(50),
-    salary DECIMAL(10, 2),
-    FOREIGN KEY (dept_name) REFERENCES Department(dept_name)
+-- Create Borrower table
+CREATE TABLE Borrower (
+    customer_name VARCHAR(50),
+    loan_number VARCHAR(10),
+    PRIMARY KEY (customer_name, loan_number),
+    FOREIGN KEY (customer_name) REFERENCES Customer(customer_name),
+    FOREIGN KEY (loan_number) REFERENCES Loan(loan_number)
 );
 
--- Insert data into Department table
-INSERT INTO Department (dept_name) VALUES
-('Comp. Sci.'),
-('Math'),
-('Physics');
+-- Insert data into Branch table
+INSERT INTO Branch (branch_name, branch_city, assets) VALUES
+('Downtown', 'Brooklyn', 1000000.00),
+('Uptown', 'Brooklyn', 750000.00),
+('Midtown', 'Manhattan', 1500000.00),
+('Westside', 'Queens', 500000.00);
 
--- Insert data into Student table
-INSERT INTO Student (ID, name, dept_name, tot_cred) VALUES
-('1', 'Alice', 'Comp. Sci.', 32),
-('2', 'Bob', 'Math', 20),
-('3', 'Charlie', 'Comp. Sci.', 28),
-('4', 'David', 'Physics', 25),
-('5', 'Eve', 'Comp. Sci.', 15);
+-- Insert data into Customer table
+INSERT INTO Customer (customer_name, customer_street, customer_city) VALUES
+('Alice', '123 Main St', 'Brooklyn'),
+('Bob', '456 Oak Ave', 'Manhattan'),
+('Charlie', '789 Pine Rd', 'Brooklyn'),
+('David', '321 Maple St', 'Queens'),
+('Eve', '654 Cedar St', 'Brooklyn');
 
--- Insert data into Course table
-INSERT INTO Course (course_id, title, dept_name, credits) VALUES
-('CS101', 'Intro to Computer Science', 'Comp. Sci.', 4),
-('CS102', 'Data Structures', 'Comp. Sci.', 4),
-('MATH101', 'Calculus I', 'Math', 3),
-('PHYS101', 'Physics I', 'Physics', 4);
+-- Insert data into Account table
+INSERT INTO Account (account_number, branch_name, balance) VALUES
+('A001', 'Downtown', 5000.00),
+('A002', 'Uptown', 3000.00),
+('A003', 'Midtown', 7000.00),
+('A004', 'Westside', 4000.00),
+('A005', 'Downtown', 6000.00);
 
--- Insert data into Takes table
-INSERT INTO Takes (ID, course_id, sec_id, semester, year, grade) VALUES
-('1', 'CS101', 1, 'Fall', 2008, 'A'),
-('2', 'MATH101', 1, 'Spring', 2009, 'B'),
-('3', 'CS102', 1, 'Fall', 2009, 'A'),
-('4', 'PHYS101', 1, 'Fall', 2008, 'B'),
-('5', 'CS101', 1, 'Spring', 2009, 'A');
+-- Insert data into Depositor table
+INSERT INTO Depositor (customer_name, account_number) VALUES
+('Alice', 'A001'),
+('Bob', 'A003'),
+('Charlie', 'A002'),
+('David', 'A004'),
+('Eve', 'A005'),
+('Alice', 'A002'); -- Added to ensure Alice has accounts in both Brooklyn branches
 
--- Insert data into Instructor table
-INSERT INTO Instructor (ID, name, dept_name, salary) VALUES
-(101, 'Prof. Smith', 'Comp. Sci.', 90000.00),
-(102, 'Prof. Johnson', 'Math', 85000.00),
-(103, 'Prof. Lee', 'Physics', 92000.00),
-(104, 'Prof. White', 'Comp. Sci.', 88000.00);
+-- Insert data into Loan table
+INSERT INTO Loan (loan_number, branch_name, amount) VALUES
+('L001', 'Downtown', 10000.00),
+('L002', 'Uptown', 15000.00),
+('L003', 'Midtown', 20000.00),
+('L004', 'Westside', 5000.00);
 
--- a. Create a new course CS-001, titled "Weekly Seminar" with 0 credits
+-- Insert data into Borrower table
+INSERT INTO Borrower (customer_name, loan_number) VALUES
+('Alice', 'L001'),
+('Charlie', 'L002'),
+('Bob', 'L003'),
+('David', 'L004');
 
-INSERT INTO Course (course_id, title, dept_name, credits) VALUES
-('CS-001', 'Weekly Seminar', 'Comp. Sci.', 0);
+
+-- a. Find all customers who have an account at all the branches located in “Brooklyn.”
+SELECT D.customer_name
+FROM Depositor D
+JOIN Account A ON D.account_number = A.account_number
+JOIN Branch B ON A.branch_name = B.branch_name
+WHERE B.branch_city = 'Brooklyn'
+GROUP BY D.customer_name
+HAVING COUNT(DISTINCT B.branch_name) = (
+    SELECT COUNT(*) 
+    FROM Branch 
+    WHERE branch_city = 'Brooklyn'
+);
+
+-- b. Find out the total sum of all loan amounts in the bank.
+SELECT SUM(amount) AS total_loan_amount
+FROM Loan;
 
 
--- b. Create a section of this course in Autumn 2009, with sec_id of 1
-INSERT INTO Section (course_id, sec_id, semester, year, building, room_number, time_slot_id)
-VALUES ('CS-001', 1, 'Autumn', 2009, 'CompSciBldg', '101', 'T1');
+-- c. Find the names of all branches that have assets greater than those of at least one branch located in “Brooklyn.”
 
--- c. Enroll every student in the above section
-INSERT INTO Takes (ID, course_id, sec_id, semester, year, grade)
-SELECT ID, 'CS-001', 1, 'Autumn', 2009, NULL
-FROM Student;
-
--- d. Delete enrollments in the above section where the student's name is "Chavez"
-DELETE FROM Takes
-WHERE course_id = 'CS-001'
-  AND sec_id = 1
-  AND semester = 'Autumn'
-  AND year = 2009
-  AND ID IN (SELECT ID FROM Student WHERE name = 'Chavez');
-
--- e. Delete the course CS-001 without first deleting offerings (sections) of this course
-DELETE FROM Course WHERE course_id = 'CS-001';
-
--- f. Delete all takes tuples corresponding to any section of any course with the word "database" in the title
-DELETE FROM Takes
-WHERE course_id IN (
-    SELECT course_id
-    FROM Course
-    WHERE LOWER(title) LIKE '%database%'
+SELECT DISTINCT B1.branch_name
+FROM Branch B1
+WHERE B1.assets > ANY (
+    SELECT B2.assets
+    FROM Branch B2
+    WHERE B2.branch_city = 'Brooklyn'
 );
